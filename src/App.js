@@ -4,6 +4,7 @@ import {FormControl, MenuItem, Select, Card, CardContent} from "@material-ui/cor
 import { useEffect } from 'react';
 import InfoBox from "./InfoBox";
 import Map from "./Map";
+import Table from "./Table";
 
 // https://disease.sh/v3/covid-19/countries
 // State: How to write variable in REACT
@@ -12,47 +13,52 @@ import Map from "./Map";
 
 function App() {
 
-  useEffect( () => {
-      
-     fetch ("https://disease.sh/v3/covid-19/all")
-     .then (response => response.json())
-     .then ((data) =>{
-       setCountryInfo(data);
-     })
-    }
-  );
- 
-  useEffect(() => {
-    //the code inside here runs once when the component loads
-    // async -> sends a request, wait for it, do something
 
-    const getCountriesData = async () => {
-      await fetch("https://disease.sh/v3/covid-19/countries")
-      .then( (response) => response.json())
-      .then((data) => {
-
-        const countries = data.map(
-          (country) => ({
-
-            name: country.country,
-            value: country.countryInfo.iso2,
-          }));
-             
-          setCountries(countries);
-      });
-    };
-    getCountriesData();
-
-  }, []);
 
 const [countries, setCountries] = useState([]);
 const [country, setCountry] = useState(["Worldwide"]);
 const [countryInfo, setCountryInfo] = useState ({});
+const [tableData, setTableData] = useState([]);
+
+useEffect( () => {
+      
+  fetch ("https://disease.sh/v3/covid-19/all")
+  .then (response => response.json())
+  .then ((data) =>{
+    setCountryInfo(data);
+  })
+ },
+[])
+
+useEffect(() => {
+  //the code inside here runs once when the component loads
+  // async -> sends a request, wait for it, do something
+
+  const getCountriesData = async () => {
+    await fetch("https://disease.sh/v3/covid-19/countries")
+    .then( (response) => response.json())
+    .then((data) => {
+
+      const countries = data.map(
+        (country) => ({
+
+          name: country.country,
+          value: country.countryInfo.iso2,
+        }));
+           
+        setTableData(data);
+        setCountries(countries);
+    });
+  };
+  getCountriesData();
+
+}, [])
+
 
 const onCountryChange = async (event) => {
 
   const countryCode = event.target.value;
-  console.log("yes" , countryCode);
+  
 
   setCountry(countryCode);
 
@@ -69,7 +75,7 @@ await fetch(url)
 });
 };
 
-console.log("COUNTRY CODE >>>>>" , countryInfo);
+
 
   return (
     <div className="app">
@@ -110,7 +116,9 @@ console.log("COUNTRY CODE >>>>>" , countryInfo);
 <Card className="app__right">
   <CardContent>
     {/* table*/}
-    <h3>This is the table</h3>
+    <h3>Live cases by Country</h3>
+    <Table countries={tableData} />
+
     {/* graph*/}
     <h3>This is the Graph</h3>
     </CardContent>
