@@ -1,12 +1,40 @@
 import React, {useState} from 'react';
 import './App.css';
 import {FormControl, MenuItem, Select} from "@material-ui/core";
+import { useEffect } from 'react';
+
+
+// https://disease.sh/v3/covid-19/countries
+// State: How to write variable in REACT
+// USEEFFECT: IS a Hook in React, it Runs a piece of code
+// based on given condition
 
 function App() {
  
-const [countries, setCountries] = useState([
-  "UK", "USA", "Pak"
-]);
+  useEffect(() => {
+    //the code inside here runs once when the component loads
+    // async -> sends a request, wait for it, do something
+
+    const getCountriesData = async () => {
+      await fetch("https://disease.sh/v3/covid-19/countries")
+      .then( (response) => response.json())
+      .then((data) => {
+ 
+        const countries = data.map(
+          (country) => ({
+
+            name: country.country,
+            value: country.countryInfo.iso2,
+          }));
+             
+          setCountries(countries);
+      });
+    };
+    getCountriesData();
+
+  }, []);
+
+const [countries, setCountries] = useState([]);
 
   return (
     <div className="app">
@@ -23,7 +51,7 @@ const [countries, setCountries] = useState([
       >
         {
           countries.map( (country) => (
-          <MenuItem value={country}>{country}</MenuItem>
+          <MenuItem value={country.value}>{country.name}</MenuItem>
           ))
         }
          <MenuItem value="worldwide">Worldwide</MenuItem>
