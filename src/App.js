@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import InfoBox from "./InfoBox";
 import Map from "./Map";
 import Table from "./Table";
+import {sortData} from "./sort"
 
 // https://disease.sh/v3/covid-19/countries
 // State: How to write variable in REACT
@@ -45,8 +46,9 @@ useEffect(() => {
           name: country.country,
           value: country.countryInfo.iso2,
         }));
-           
-        setTableData(data);
+
+        const sortedData = sortData(data);
+        setTableData(sortedData);
         setCountries(countries);
     });
   };
