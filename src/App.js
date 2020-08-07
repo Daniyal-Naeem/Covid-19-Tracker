@@ -4,8 +4,11 @@ import {FormControl, MenuItem, Select, Card, CardContent} from "@material-ui/cor
 import { useEffect } from 'react';
 import InfoBox from "./InfoBox";
 import Map from "./Map";
+import "leaflet/dist/leaflet.css";
 import Table from "./Table";
-import {sortData} from "./sort"
+import { sortData} from "./sort";
+//import numeral from "numeral";
+import LineGraph from "./LineGraph";
 
 // https://disease.sh/v3/covid-19/countries
 // State: How to write variable in REACT
@@ -20,6 +23,10 @@ const [countries, setCountries] = useState([]);
 const [country, setCountry] = useState(["Worldwide"]);
 const [countryInfo, setCountryInfo] = useState ({});
 const [tableData, setTableData] = useState([]);
+  const [mapCountries, setMapCountries] = useState([]);
+  const [casesType, setCasesType] = useState("cases");
+  const [mapCenter, setMapCenter] = useState({ lat: 34.80746, lng: -40.4796 });
+  const [mapZoom, setMapZoom] = useState(3);
 
 useEffect( () => {
       
@@ -47,6 +54,7 @@ useEffect(() => {
           value: country.countryInfo.iso2,
         }));
 
+        setMapCountries(data);
         const sortedData = sortData(data);
         setTableData(sortedData);
         setCountries(countries);
@@ -73,6 +81,8 @@ await fetch(url)
 
         setCountry(countryCode);
         setCountryInfo(data);
+        setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
+        setMapZoom(4);
 
 });
 };
@@ -105,14 +115,38 @@ await fetch(url)
 
  {/* InfoBoxe */}
  <div className="app__stats">
-
-   <InfoBox title="CoronaVirus Cases" cases={countryInfo.todayCases} total={countryInfo.cases}/>
-   <InfoBox title="Recovered" cases={countryInfo.todayRecovered} total={countryInfo.recovered}/>
-   <InfoBox title="Deaths" cases={countryInfo.todayDeaths} total={countryInfo.deaths}/>
-</div>
+          <InfoBox
+            onClick={(e) => setCasesType("cases")}
+            title="Coronavirus Cases"
+            isRed
+            active={casesType === "cases"}
+            cases={(countryInfo.todayCases)}
+            total={(countryInfo.cases)}
+          />
+          <InfoBox
+            onClick={(e) => setCasesType("recovered")}
+            title="Recovered"
+            active={casesType === "recovered"}
+            cases={(countryInfo.todayRecovered)}
+            total={(countryInfo.recovered)}
+          />
+          <InfoBox
+            onClick={(e) => setCasesType("deaths")}
+            title="Deaths"
+            isRed
+            active={casesType === "deaths"}
+            cases={(countryInfo.todayDeaths)}
+            total={(countryInfo.deaths)}
+          />
+        </div>
 
    {/* Map */}
-    <Map />
+   <Map
+          countries={mapCountries}
+          casesType={casesType}
+          center={mapCenter}
+          zoom={mapZoom}
+        />
 </div>
     
 <Card className="app__right">
@@ -122,7 +156,8 @@ await fetch(url)
     <Table countries={tableData} />
 
     {/* graph*/}
-    <h3>This is the Graph</h3>
+    <h3>Worldwide new {casesType}</h3>
+    <LineGraph casesType={casesType} />
     </CardContent>
   </Card>
 
